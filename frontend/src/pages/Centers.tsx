@@ -155,7 +155,7 @@ export function Centers() {
           return (
             <li
               key={center.id}
-              className="rounded-lg border border-line bg-surface p-5 shadow-panel">
+              className="rounded-xl border border-line bg-surface/60 backdrop-blur-sm p-6 shadow-panel transition-all duration-300 ease-out hover:bg-surface/80 hover:-translate-y-1 hover:shadow-glow hover:border-brand-500/30">
               
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
                   <div className="min-w-0 flex-1">
@@ -203,7 +203,7 @@ export function Centers() {
                       </span>
                     </div>
                     <div
-                    className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-line"
+                    className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-solid border border-line-strong shadow-inner"
                     role="img"
                     aria-label={`${utilisation}% of daily capacity used`}>
                     

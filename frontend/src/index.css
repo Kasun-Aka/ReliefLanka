@@ -1,5 +1,5 @@
 /* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP OF THIS FILE, ABOVE THE TAILWIND IMPORTS — DO NOT DELETE THIS COMMENT */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
 
 /* CRITICAL: THE FOLLOWING TAILWIND IMPORTS MUST NEVER BE DELETED OR REORDERED — DO NOT DELETE THIS COMMENT */
 @import 'tailwindcss/base';
@@ -14,25 +14,32 @@ body,
   height: 100%;
   width: 100%;
 }
+
 body {
-  background-color: #f4f6f8;
-  color: #101b26;
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background: radial-gradient(circle at top, #1E293B 0%, #0B1120 100%);
+  background-attachment: fixed;
+  color: #F8FAFC;
+  font-family: 'Outfit', 'Inter', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
 h1,
 h2,
 h3 {
   letter-spacing: -0.015em;
 }
+
 :focus-visible {
-  outline: 2px solid #0d5b88;
+  outline: 2px solid #38BDF8;
   outline-offset: 2px;
   border-radius: 4px;
 }
+
 ::selection {
-  background: #d7e9f4;
+  background: rgba(56, 189, 248, 0.3);
 }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -40,4 +47,13 @@ h3 {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  @apply bg-surface backdrop-blur-md border border-line shadow-panel rounded-lg;
+}
+
+.glass-panel-hover {
+  @apply glass-panel transition-all duration-300 hover:border-brand-500/50 hover:shadow-glow hover:-translate-y-1;
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 
 const CONTROL =
-'w-full rounded border border-line-strong bg-white px-3 text-sm text-ink placeholder:text-ink-faint transition-colors duration-150 ease-out hover:border-ink-faint focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100';
+'w-full rounded-lg border border-line-strong bg-surface-solid/80 px-3 text-sm text-ink placeholder:text-ink-faint transition-all duration-300 ease-out hover:border-brand-500/50 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 shadow-inner backdrop-blur-sm';
 
 interface LabelProps {
   label: string;
@@ -80,10 +80,10 @@ export function ChipGroup<T extends string>({
               type="button"
               aria-pressed={active}
               onClick={() => onToggle(option)}
-              className={`rounded border px-2.5 py-1 text-xs font-medium transition-colors duration-150 ease-out ${
+              className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-300 ease-out backdrop-blur-sm ${
               active ?
-              'border-brand-700 bg-brand-700 text-white' :
-              'border-line-strong bg-white text-ink-muted hover:border-ink-faint hover:text-ink'}`
+              'border-brand-500 bg-brand-500/20 text-brand-300 shadow-[0_0_10px_rgba(14,165,233,0.3)]' :
+              'border-line-strong bg-surface-solid/80 text-ink-muted hover:border-brand-500/50 hover:text-ink shadow-inner'}`
               }>
               
               {option}

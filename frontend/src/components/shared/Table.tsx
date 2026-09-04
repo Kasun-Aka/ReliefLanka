@@ -8,13 +8,13 @@ export function TableShell({
 
 
 
-}: {head: React.ReactNode;children: React.ReactNode;caption: string;}) {
+}: { head: React.ReactNode; children: React.ReactNode; caption: string; }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-line bg-surface shadow-panel">
+    <div className="overflow-x-auto rounded-xl border border-line bg-surface/80 backdrop-blur-md shadow-panel">
       <table className="w-full min-w-[720px] border-collapse text-left text-sm">
         <caption className="sr-only">{caption}</caption>
         <thead>
-          <tr className="border-b border-line bg-subtle">{head}</tr>
+          <tr className="border-b border-line bg-subtle/50 backdrop-blur-sm">{head}</tr>
         </thead>
         <tbody className="divide-y divide-line">{children}</tbody>
       </table>
@@ -30,14 +30,12 @@ export function Th({
 
 
 
-}: {children: React.ReactNode;align?: 'left' | 'right';className?: string;}) {
+}: { children: React.ReactNode; align?: 'left' | 'right'; className?: string; }) {
   return (
     <th
       scope="col"
-      className={`px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-ink-faint ${
-      align === 'right' ? 'text-right' : 'text-left'} ${
-      className}`}>
-      
+      className={`px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-ink-faint ${align === 'right' ? 'text-right' : 'text-left'} ${className}`}>
+
       {children}
     </th>);
 
@@ -46,19 +44,13 @@ export function Th({
 export function Td({
   children,
   align = 'left',
-  className = ''
-
-
-
-
-}: {children: React.ReactNode;align?: 'left' | 'right';className?: string;}) {
+  className = '',
+  colSpan,
+}: { children?: React.ReactNode; align?: 'left' | 'right'; className?: string; colSpan?: number; }) {
   return (
     <td
-      className={`px-4 py-3 align-middle text-ink ${
-      align === 'right' ? 'text-right' : 'text-left'} ${
-      className}`}>
-      
+      colSpan={colSpan}
+      className={`px-4 py-3 align-middle text-ink ${align === 'right' ? 'text-right' : 'text-left'} ${className}`}>
       {children}
     </td>);
-
 }

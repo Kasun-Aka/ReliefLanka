@@ -164,7 +164,7 @@ export function Volunteers() {
         }>
         
           {filtered.map((volunteer) =>
-        <tr key={volunteer.id} className="transition-colors duration-150 ease-out hover:bg-brand-50/60">
+        <tr key={volunteer.id} className="transition-colors duration-150 ease-out hover:bg-brand-500/10">
               <Td>
                 <span className="block font-medium text-ink">{volunteer.name}</span>
                 <span className="font-mono text-xs text-ink-faint">{volunteer.phone}</span>

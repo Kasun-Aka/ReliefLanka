@@ -180,7 +180,7 @@ export function Inventory() {
             Math.round(item.quantity / Math.max(1, item.reorderLevel * 2) * 100)
           );
           return (
-            <tr key={item.id} className="transition-colors duration-150 ease-out hover:bg-brand-50/60">
+            <tr key={item.id} className="transition-colors duration-150 ease-out hover:bg-brand-500/10">
                 <Td>
                   <span className="block font-medium text-ink">{item.itemName}</span>
                   <span className="font-mono text-xs text-ink-faint">{item.id}</span>

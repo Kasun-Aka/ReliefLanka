@@ -21,7 +21,7 @@ export function FilterBar({
   showReset = false
 }: FilterBarProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-3 shadow-panel lg:flex-row lg:items-center">
+    <div className="flex flex-col gap-4 rounded-xl border border-line bg-surface/60 backdrop-blur-sm p-4 shadow-panel lg:flex-row lg:items-center">
       <div className="relative lg:w-72">
         <SearchIcon
           className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint"
@@ -33,7 +33,7 @@ export function FilterBar({
           onChange={(event) => onQueryChange(event.target.value)}
           placeholder={placeholder}
           aria-label={placeholder}
-          className="h-9 w-full rounded border border-line-strong bg-white pl-9 pr-3 text-sm text-ink placeholder:text-ink-faint transition-colors duration-150 ease-out hover:border-ink-faint focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100" />
+          className="h-10 w-full rounded-lg border border-line-strong bg-surface-solid/80 pl-9 pr-3 text-sm text-ink placeholder:text-ink-faint transition-all duration-300 ease-out hover:border-brand-500/50 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 shadow-inner backdrop-blur-sm" />
         
       </div>
       <div className="flex flex-wrap items-center gap-2">{children}</div>

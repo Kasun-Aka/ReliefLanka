@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { InboxIcon, PlusIcon } from 'lucide-react';
+import { AlertCircleIcon, InboxIcon, Loader2Icon, PlusIcon, RefreshCwIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { MetaStat, PageHeader } from '../components/shared/PageHeader';
 import { FilterBar } from '../components/shared/FilterBar';
@@ -11,14 +11,14 @@ import { EmptyState } from '../components/shared/EmptyState';
 import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import { RequestFormModal } from '../components/requests/RequestFormModal';
 import { RequestDetailModal } from '../components/requests/RequestDetailModal';
-import { useReliefData } from '../contexts/ReliefDataContext';
+import { useRequests } from '../hooks/useRequests';
 import { DISTRICTS } from '../data/districts';
 import { ReliefRequest, REQUEST_STATUSES, URGENCIES } from '../types/relief';
 import { formatNumber, formatRelative, matches } from '../utils/format';
 import { requestStatusTone, urgencyTone } from '../utils/tone';
 
 export function Requests() {
-  const { requests } = useReliefData();
+  const requests = useRequests();
   const [query, setQuery] = useState('');
   const [district, setDistrict] = useState('');
   const [urgency, setUrgency] = useState('');
@@ -50,34 +50,76 @@ export function Requests() {
     setStatus('');
   };
 
-  const save = (request: ReliefRequest) => {
-    if (editing) {
-      requests.update(request.id, request);
-      toast.success(`Request ${request.id} updated`);
-    } else {
-      requests.create(request);
-      toast.success(`Request ${request.id} logged for ${request.district}`);
+  const save = async (request: ReliefRequest) => {
+    try {
+      if (editing) {
+        await requests.update(request.id, request);
+        toast.success(`Request ${request.id} updated`);
+      } else {
+        await requests.create(request);
+        toast.success(`Request ${request.id} logged for ${request.district}`);
+      }
+    } catch {
+      toast.error('Could not save — check your connection and try again.');
     }
     setFormOpen(false);
     setEditing(null);
     setSelected(null);
   };
 
-  const toggleStatus = (request: ReliefRequest) => {
+  const toggleStatus = async (request: ReliefRequest) => {
     const next = request.status === 'Pending' ? 'Fulfilled' : 'Pending';
-    requests.update(request.id, { status: next });
-    setSelected({ ...request, status: next });
-    toast.success(`${request.id} marked ${next.toLowerCase()}`);
+    try {
+      await requests.update(request.id, { status: next });
+      setSelected({ ...request, status: next });
+      toast.success(`${request.id} marked ${next.toLowerCase()}`);
+    } catch {
+      toast.error('Status update failed — please retry.');
+    }
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!pendingDelete) return;
-    requests.remove(pendingDelete.id);
-    toast.success(`Request ${pendingDelete.id} deleted`);
+    try {
+      await requests.remove(pendingDelete.id);
+      toast.success(`Request ${pendingDelete.id} deleted`);
+    } catch {
+      toast.error('Delete failed — please retry.');
+    }
     setPendingDelete(null);
     setSelected(null);
   };
 
+  // ── Loading state ───────────────────────────────────────────────────────────
+  if (requests.status === 'loading') {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-24 text-ink-muted">
+        <Loader2Icon className="h-7 w-7 animate-spin text-brand-500" />
+        <p className="text-sm">Loading relief requests…</p>
+      </div>
+    );
+  }
+
+  // ── Error state ─────────────────────────────────────────────────────────────
+  if (requests.status === 'error') {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-24">
+        <AlertCircleIcon className="h-8 w-8 text-red-400" />
+        <div className="text-center">
+          <p className="font-medium text-ink">Could not load requests</p>
+          <p className="mt-1 text-sm text-ink-muted">
+            {requests.error ?? 'An unexpected error occurred.'}
+          </p>
+        </div>
+        <Button onClick={requests.reload}>
+          <RefreshCwIcon className="h-4 w-4" />
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  // ── Main view ────────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
@@ -184,7 +226,7 @@ export function Requests() {
               setSelected(request);
             }
           }}
-          className="cursor-pointer transition-colors duration-150 ease-out hover:bg-brand-50/60">
+          className="cursor-pointer transition-colors duration-150 ease-out hover:bg-brand-500/10">
           
               <Td>
                 <span className="block font-medium text-ink">{request.name}</span>
