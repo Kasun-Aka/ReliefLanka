@@ -8,11 +8,11 @@ export default {
     extend: {
       colors: {
         canvas: '#0B1120',
-        surface: 'rgba(30, 41, 59, 0.4)', // Glass effect
+        surface: '#1E293B',         // Solid — was glassy rgba
         'surface-solid': '#1E293B',
-        subtle: 'rgba(51, 65, 85, 0.4)',
-        line: 'rgba(148, 163, 184, 0.15)',
-        'line-strong': 'rgba(148, 163, 184, 0.3)',
+        subtle: '#334155',            // Solid — was glassy rgba
+        line: '#334155',              // Solid border
+        'line-strong': '#475569',     // Solid stronger border
         ink: {
           DEFAULT: '#F8FAFC',
           muted: '#94A3B8',

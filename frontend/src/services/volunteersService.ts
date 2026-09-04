@@ -1,4 +1,5 @@
 import { Volunteer } from '../types/relief';
+import { auth } from '../config/firebase';
 
 const BASE = `${import.meta.env.VITE_API_BASE_URL}/api/volunteers`;
 
@@ -15,8 +16,13 @@ function toClient(doc: any): Volunteer {
 }
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
+  const token = await auth.currentUser?.getIdToken();
+  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
   const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     ...options,
   });
   if (!res.ok) {

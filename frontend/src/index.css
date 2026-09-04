@@ -41,6 +41,7 @@ h3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -49,9 +50,9 @@ h3 {
   }
 }
 
-/* Glassmorphism Utilities */
+/* Panel Utilities */
 .glass-panel {
-  @apply bg-surface backdrop-blur-md border border-line shadow-panel rounded-lg;
+  @apply bg-surface border border-line shadow-panel rounded-lg;
 }
 
 .glass-panel-hover {

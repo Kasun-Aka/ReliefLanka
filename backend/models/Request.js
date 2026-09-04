@@ -6,6 +6,7 @@ const requestSchema = new mongoose.Schema({
   district: { type: String, enum: DISTRICTS, required: true },
   contactPhone: { type: String, required: true },
   itemsNeeded: [{ type: String }],
+  peopleAffected: { type: Number, required: true, min: 1 },
   urgency: { type: String, enum: ["Low", "Medium", "High"], default: "Medium" },
   status: { type: String, enum: ["Pending", "Fulfilled"], default: "Pending" },
   createdAt: { type: Date, default: Date.now },
