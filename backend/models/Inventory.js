@@ -9,6 +9,7 @@ const inventorySchema = new mongoose.Schema({
     required: true,
   },
   quantity: { type: Number, required: true, default: 0 },
+  reorderLevel: { type: Number, required: true, default: 10 },
   unit: { type: String, required: true },
   storageLocation: String,
   district: { type: String, enum: DISTRICTS, required: true },
