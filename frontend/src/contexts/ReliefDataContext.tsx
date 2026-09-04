@@ -19,6 +19,7 @@ interface Collection<T extends Entity> {
   create: (item: T) => void;
   update: (id: string, patch: Partial<T>) => void;
   remove: (id: string) => void;
+  setAll: (items: T[]) => void;
 }
 
 function useCollection<T extends Entity>(seed: T[]): Collection<T> {
@@ -38,9 +39,13 @@ function useCollection<T extends Entity>(seed: T[]): Collection<T> {
     setItems((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
+  const setAll = useCallback((newItems: T[]) => {
+    setItems(newItems);
+  }, []);
+
   return useMemo(
-    () => ({ items, create, update, remove }),
-    [items, create, update, remove]
+    () => ({ items, create, update, remove, setAll }),
+    [items, create, update, remove, setAll]
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   AlertTriangleIcon,
   BoxesIcon,
@@ -21,6 +21,7 @@ import { DISTRICTS } from '../data/districts';
 import { INVENTORY_CATEGORIES, InventoryItem } from '../types/relief';
 import { formatNumber, formatRelative, matches } from '../utils/format';
 import { categoryTone } from '../utils/tone';
+import { inventoryService } from '../services/inventoryService';
 
 export function Inventory() {
   const { inventory } = useReliefData();
@@ -31,6 +32,15 @@ export function Inventory() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<InventoryItem | null>(null);
   const [pendingDelete, setPendingDelete] = useState<InventoryItem | null>(null);
+
+  useEffect(() => {
+    inventoryService.getAll().then((data) => {
+      inventory.setAll(data);
+    }).catch(err => {
+      console.error(err);
+      toast.error('Failed to fetch inventory from server');
+    });
+  }, []);
 
   const lowStock = inventory.items.filter((i) => i.quantity < i.reorderLevel);
 
@@ -55,16 +65,35 @@ export function Inventory() {
     setLowOnly(false);
   };
 
-  const save = (item: InventoryItem) => {
-    if (editing) {
-      inventory.update(item.id, item);
-      toast.success(`${item.itemName} stock updated`);
-    } else {
-      inventory.create(item);
-      toast.success(`${item.itemName} logged in ${item.district}`);
+  const save = async (item: InventoryItem) => {
+    try {
+      if (editing) {
+        const updated = await inventoryService.update(item.id, item);
+        inventory.update(updated.id, updated);
+        toast.success(`${updated.itemName} stock updated`);
+      } else {
+        const { id, loggedAt, ...data } = item;
+        const created = await inventoryService.create(data as any);
+        inventory.create(created);
+        toast.success(`${created.itemName} logged in ${created.district}`);
+      }
+      setFormOpen(false);
+      setEditing(null);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to save inventory item');
     }
-    setFormOpen(false);
-    setEditing(null);
+  };
+
+  const remove = async (item: InventoryItem) => {
+    try {
+      await inventoryService.delete(item.id);
+      inventory.remove(item.id);
+      toast.success(`${item.itemName} removed from inventory`);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to delete item');
+    }
   };
 
   return (
@@ -261,9 +290,7 @@ export function Inventory() {
         onCancel={() => setPendingDelete(null)}
         onConfirm={() => {
           if (!pendingDelete) return;
-          inventory.remove(pendingDelete.id);
-          toast.success(`${pendingDelete.itemName} removed from inventory`);
-          setPendingDelete(null);
+          remove(pendingDelete).then(() => setPendingDelete(null));
         }} />
       
     </div>);
