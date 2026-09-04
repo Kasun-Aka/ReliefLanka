@@ -17,7 +17,7 @@ export type InventoryCategory =
 export interface ReliefRequest {
   id: string;
   name: string;
-  district: string;
+  ownerId?: string;
   contactPhone: string;
   itemsNeeded: string[];
   peopleAffected: number;

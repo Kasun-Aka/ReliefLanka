@@ -71,8 +71,8 @@ export function CenterFormModal({
     if (!form.centerName.trim()) next.centerName = 'Center name is required.';
     if (!form.district) next.district = 'Select the district.';
     if (!form.contactPerson.trim()) next.contactPerson = 'Name a point of contact.';
-    if (!/^[0-9+\s()-]{9,}$/.test(form.contactPhone.trim()))
-    next.contactPhone = 'Enter a reachable phone number.';
+    if (!/^\d{10}$/.test(form.contactPhone))
+    next.contactPhone = 'Enter exactly 10 digits.';
     const capacity = Number(form.capacity);
     if (!form.capacity || Number.isNaN(capacity) || capacity < 1)
     next.capacity = 'Enter the daily intake capacity.';
@@ -152,8 +152,11 @@ export function CenterFormModal({
           <TextInput
             id="ctr-phone"
             value={form.contactPhone}
-            onChange={(e) => set('contactPhone', e.target.value)}
-            placeholder="045 000 0000" />
+            inputMode="numeric"
+            maxLength={10}
+            pattern="[0-9]{10}"
+            onChange={(e) => set('contactPhone', e.target.value.replace(/\D/g, '').slice(0, 10))}
+            placeholder="0450000000" />
           
         </Field>
         <Field

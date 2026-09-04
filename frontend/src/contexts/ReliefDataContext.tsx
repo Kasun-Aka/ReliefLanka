@@ -6,7 +6,11 @@ import {
   Volunteer } from
 '../types/relief';
 import { seedRequests } from '../data/requests';
-import { seedCenters } from '../data/centers';
+import {
+  createCenter as createCenterApi,
+  deleteCenter as deleteCenterApi,
+  listCenters,
+  updateCenter as updateCenterApi } from '../services/centers';
 import { seedInventory } from '../data/inventory';
 import { useAuth } from './AuthContext';
 import {
@@ -74,7 +78,22 @@ const ReliefDataContext = createContext<ReliefDataValue | null>(null);
 export function ReliefDataProvider({ children }: {children: React.ReactNode;}) {
   const { token } = useAuth();
   const requests = useCollection<ReliefRequest>(seedRequests);
-  const centers = useCollection<Center>(seedCenters);
+  const [centerItems, setCenterItems] = useState<Center[]>([]);
+  const centers = useMemo(() => ({
+    items: centerItems,
+    create: async (center: Center) => {
+      const created = await createCenterApi(center);
+      setCenterItems((prev) => [created, ...prev]);
+    },
+    update: async (id: string, patch: Partial<Center>) => {
+      const updated = await updateCenterApi(id, patch);
+      setCenterItems((prev) => prev.map((item) => item.id === id ? updated : item));
+    },
+    remove: async (id: string) => {
+      await deleteCenterApi(id);
+      setCenterItems((prev) => prev.filter((item) => item.id !== id));
+    }
+  }), [centerItems]);
   const [volunteerItems, setVolunteerItems] = useState<Volunteer[]>([]);
   const volunteers = useMemo(() => ({
     items: volunteerItems,
@@ -96,9 +115,11 @@ export function ReliefDataProvider({ children }: {children: React.ReactNode;}) {
   useEffect(() => {
     if (!token) {
       setVolunteerItems([]);
+      setCenterItems([]);
       return;
     }
     listVolunteers().then(setVolunteerItems).catch(() => setVolunteerItems([]));
+    listCenters().then(setCenterItems).catch(() => setCenterItems([]));
   }, [token]);
 
   const districtSnapshots = useMemo<DistrictSnapshot[]>(() => {
