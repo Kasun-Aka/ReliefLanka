@@ -15,7 +15,8 @@ export type InventoryCategory =
 'Other';
 
 export interface ReliefRequest {
-  id: string;
+  id: string;           // stylish display ID — e.g. "REQ-K4F2J9"
+  _mongoId?: string;    // raw MongoDB _id — used by service layer for PUT/DELETE
   name: string;
   district: string;
   contactPhone: string;
