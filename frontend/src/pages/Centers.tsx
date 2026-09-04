@@ -21,11 +21,13 @@ import { useReliefData } from '../contexts/ReliefDataContext';
 import { DISTRICTS } from '../data/districts';
 import { Center } from '../types/relief';
 import { formatNumber, matches } from '../utils/format';
+import { useAuth } from '../contexts/AuthContext';
 
 const STATUS_OPTIONS = ['Accepting donations', 'Temporarily closed'];
 
 export function Centers() {
   const { centers } = useReliefData();
+  const { user } = useAuth();
   const [query, setQuery] = useState('');
   const [district, setDistrict] = useState('');
   const [status, setStatus] = useState('');
@@ -54,25 +56,33 @@ export function Centers() {
     setStatus('');
   };
 
-  const save = (center: Center) => {
-    if (editing) {
-      centers.update(center.id, center);
-      toast.success(`${center.centerName} updated`);
-    } else {
-      centers.create(center);
-      toast.success(`${center.centerName} added to the directory`);
+  const save = async (center: Center) => {
+    try {
+      if (editing) {
+        await centers.update(center.id, center);
+        toast.success(`${center.centerName} updated`);
+      } else {
+        await centers.create(center);
+        toast.success(`${center.centerName} added to the directory`);
+      }
+      setFormOpen(false);
+      setEditing(null);
+    } catch {
+      toast.error('Could not save this center. Check the backend connection.');
     }
-    setFormOpen(false);
-    setEditing(null);
   };
 
-  const toggleActive = (center: Center) => {
-    centers.update(center.id, { isActive: !center.isActive });
-    toast.success(
-      center.isActive ?
-      `${center.centerName} marked temporarily closed` :
-      `${center.centerName} is accepting donations again`
-    );
+  const toggleActive = async (center: Center) => {
+    try {
+      await centers.update(center.id, { isActive: !center.isActive });
+      toast.success(
+        center.isActive ?
+        `${center.centerName} marked temporarily closed` :
+        `${center.centerName} is accepting donations again`
+      );
+    } catch {
+      toast.error('Could not update this center.');
+    }
   };
 
   return (
@@ -94,6 +104,7 @@ export function Centers() {
           </>
         }
         action={
+        user?.role !== 'coordinator' &&
         <Button
           variant="primary"
           onClick={() => {
@@ -141,6 +152,11 @@ export function Centers() {
         action={
         filtersActive ?
         <Button onClick={resetFilters}>Clear filters</Button> :
+        user?.role !== 'coordinator' ?
+        <Button variant="primary" onClick={() => { setEditing(null); setFormOpen(true); }}>
+          <PlusIcon className="h-4 w-4" />
+          Register a drop-off center
+        </Button> :
         undefined
         } /> :
 
@@ -215,10 +231,10 @@ export function Centers() {
                     
                     </div>
                     <div className="mt-4 flex flex-wrap items-center gap-2">
-                      <Button size="sm" onClick={() => toggleActive(center)}>
+                      {user?.role !== 'coordinator' && center.ownerId === user?.id && <Button size="sm" onClick={() => toggleActive(center)}>
                         {center.isActive ? 'Mark closed' : 'Reopen'}
-                      </Button>
-                      <Button
+                      </Button>}
+                      {user?.role !== 'coordinator' && center.ownerId === user?.id && <Button
                       size="sm"
                       onClick={() => {
                         setEditing(center);
@@ -227,15 +243,15 @@ export function Centers() {
                       
                         <PencilIcon className="h-3.5 w-3.5" />
                         Edit
-                      </Button>
-                      <Button
+                      </Button>}
+                      {(user?.role === 'coordinator' || center.ownerId === user?.id) && <Button
                       size="sm"
                       variant="danger"
                       onClick={() => setPendingDelete(center)}
                       aria-label={`Delete ${center.centerName}`}>
                       
                         <Trash2Icon className="h-3.5 w-3.5" />
-                      </Button>
+                      </Button>}
                     </div>
                   </div>
                 </div>
@@ -261,11 +277,15 @@ export function Centers() {
         message={`${pendingDelete?.centerName ?? ''} will disappear from the public donation directory immediately.`}
         confirmLabel="Remove center"
         onCancel={() => setPendingDelete(null)}
-        onConfirm={() => {
+        onConfirm={async () => {
           if (!pendingDelete) return;
-          centers.remove(pendingDelete.id);
-          toast.success(`${pendingDelete.centerName} removed`);
-          setPendingDelete(null);
+          try {
+            await centers.remove(pendingDelete.id);
+            toast.success(`${pendingDelete.centerName} removed`);
+            setPendingDelete(null);
+          } catch {
+            toast.error('Could not remove this center.');
+          }
         }} />
       
     </div>);

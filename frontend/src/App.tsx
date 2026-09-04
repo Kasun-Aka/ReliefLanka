@@ -25,9 +25,10 @@ export function App() {
             <Route path="/admin" element={<Auth admin />} />
             <Route path="/" element={<PublicHome />} />
             <Route path="/requests" element={<Requests />} />
-            <Route path="/centers" element={<Centers />} />
+            <Route path="/centers" element={<ProtectedRoute><Centers /></ProtectedRoute>} />
             <Route path="/volunteers" element={<ProtectedRoute><VolunteerRegistration /></ProtectedRoute>} />
             <Route path="/admin/volunteers" element={<ProtectedRoute role="coordinator"><Volunteers /></ProtectedRoute>} />
+            <Route path="/admin/centers" element={<ProtectedRoute role="coordinator"><Centers /></ProtectedRoute>} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="*" element={<Home />} />
           </Routes>

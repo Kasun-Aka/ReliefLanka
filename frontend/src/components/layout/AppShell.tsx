@@ -33,6 +33,13 @@ export function AppShell({ children }: {children: React.ReactNode;}) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { requests } = useReliefData();
   const { user, logout } = useAuth();
+  const navigation = NAV.map((item) =>
+    user?.role === 'coordinator' && item.to === '/centers' ?
+    { ...item, to: '/admin/centers' } :
+    user?.role === 'coordinator' && item.to === '/volunteers' ?
+    { ...item, to: '/admin/volunteers' } :
+    item
+  );
   const highPending = requests.items.filter(
     (r) => r.status === 'Pending' && r.urgency === 'High'
   ).length;
@@ -61,7 +68,7 @@ export function AppShell({ children }: {children: React.ReactNode;}) {
           </NavLink>
 
           <nav aria-label="Primary" className="ml-4 hidden items-center gap-1 lg:flex">
-            {NAV.map(({ to, label, icon: Icon, end }) =>
+            {navigation.map(({ to, label, icon: Icon, end }) =>
             <NavLink key={to} to={to} end={end} className={({ isActive }) => navClasses(isActive)}>
                 <Icon className="h-4 w-4" aria-hidden="true" />
                 {label}
@@ -105,7 +112,7 @@ export function AppShell({ children }: {children: React.ReactNode;}) {
         {mobileOpen &&
         <nav aria-label="Mobile" className="border-t border-line bg-surface px-5 py-3 lg:hidden">
             <ul className="flex flex-col gap-1">
-              {NAV.map(({ to, label, icon: Icon, end }) =>
+              {navigation.map(({ to, label, icon: Icon, end }) =>
             <li key={to}>
                   <NavLink
                 to={to}
