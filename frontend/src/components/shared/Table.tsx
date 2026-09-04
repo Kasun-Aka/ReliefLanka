@@ -46,19 +46,15 @@ export function Th({
 export function Td({
   children,
   align = 'left',
-  className = ''
-
-
-
-
-}: {children: React.ReactNode;align?: 'left' | 'right';className?: string;}) {
+  className = '',
+  colSpan,
+}: {children?: React.ReactNode;align?: 'left' | 'right';className?: string;colSpan?: number;}) {
   return (
     <td
+      colSpan={colSpan}
       className={`px-4 py-3 align-middle text-ink ${
       align === 'right' ? 'text-right' : 'text-left'} ${
       className}`}>
-      
       {children}
     </td>);
-
-}
+}
