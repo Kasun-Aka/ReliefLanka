@@ -54,25 +54,33 @@ export function Centers() {
     setStatus('');
   };
 
-  const save = (center: Center) => {
-    if (editing) {
-      centers.update(center.id, center);
-      toast.success(`${center.centerName} updated`);
-    } else {
-      centers.create(center);
-      toast.success(`${center.centerName} added to the directory`);
+  const save = async (center: Center) => {
+    try {
+      if (editing) {
+        await centers.update(center.id, center);
+        toast.success(`${center.centerName} updated`);
+      } else {
+        await centers.create(center);
+        toast.success(`${center.centerName} added to the directory`);
+      }
+      setFormOpen(false);
+      setEditing(null);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save center');
     }
-    setFormOpen(false);
-    setEditing(null);
   };
 
-  const toggleActive = (center: Center) => {
-    centers.update(center.id, { isActive: !center.isActive });
-    toast.success(
-      center.isActive ?
-      `${center.centerName} marked temporarily closed` :
-      `${center.centerName} is accepting donations again`
-    );
+  const toggleActive = async (center: Center) => {
+    try {
+      await centers.update(center.id, { isActive: !center.isActive });
+      toast.success(
+        center.isActive ?
+        `${center.centerName} marked temporarily closed` :
+        `${center.centerName} is accepting donations again`
+      );
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update status');
+    }
   };
 
   return (
@@ -261,10 +269,14 @@ export function Centers() {
         message={`${pendingDelete?.centerName ?? ''} will disappear from the public donation directory immediately.`}
         confirmLabel="Remove center"
         onCancel={() => setPendingDelete(null)}
-        onConfirm={() => {
+        onConfirm={async () => {
           if (!pendingDelete) return;
-          centers.remove(pendingDelete.id);
-          toast.success(`${pendingDelete.centerName} removed`);
+          try {
+            await centers.remove(pendingDelete.id);
+            toast.success(`${pendingDelete.centerName} removed`);
+          } catch (err: any) {
+            toast.error(err.message || 'Failed to remove center');
+          }
           setPendingDelete(null);
         }} />
       

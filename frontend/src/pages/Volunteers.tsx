@@ -53,26 +53,34 @@ export function Volunteers() {
     setAvailability('');
   };
 
-  const save = (volunteer: Volunteer) => {
-    if (editing) {
-      volunteers.update(volunteer.id, volunteer);
-      toast.success(`${volunteer.name} updated`);
-    } else {
-      volunteers.create(volunteer);
-      toast.success(`${volunteer.name} registered for ${volunteer.preferredDistrict}`);
+  const save = async (volunteer: Volunteer) => {
+    try {
+      if (editing) {
+        await volunteers.update(volunteer.id, volunteer);
+        toast.success(`${volunteer.name} updated`);
+      } else {
+        await volunteers.create(volunteer);
+        toast.success(`${volunteer.name} registered for ${volunteer.preferredDistrict}`);
+      }
+      setFormOpen(false);
+      setEditing(null);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save volunteer');
     }
-    setFormOpen(false);
-    setEditing(null);
   };
 
-  const toggleAvailability = (volunteer: Volunteer) => {
+  const toggleAvailability = async (volunteer: Volunteer) => {
     const next = volunteer.availability === 'Available' ? 'Deployed' : 'Available';
-    volunteers.update(volunteer.id, { availability: next });
-    toast.success(
-      next === 'Deployed' ?
-      `${volunteer.name} deployed to ${volunteer.preferredDistrict}` :
-      `${volunteer.name} is back on the available roster`
-    );
+    try {
+      await volunteers.update(volunteer.id, { availability: next });
+      toast.success(
+        next === 'Deployed' ?
+        `${volunteer.name} deployed to ${volunteer.preferredDistrict}` :
+        `${volunteer.name} is back on the available roster`
+      );
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update availability');
+    }
   };
 
   return (
@@ -235,10 +243,14 @@ export function Volunteers() {
         message={`${pendingDelete?.name ?? ''} will be removed from the roster and can no longer be deployed.`}
         confirmLabel="Remove volunteer"
         onCancel={() => setPendingDelete(null)}
-        onConfirm={() => {
+        onConfirm={async () => {
           if (!pendingDelete) return;
-          volunteers.remove(pendingDelete.id);
-          toast.success(`${pendingDelete.name} removed from the roster`);
+          try {
+            await volunteers.remove(pendingDelete.id);
+            toast.success(`${pendingDelete.name} removed from the roster`);
+          } catch (err: any) {
+            toast.error(err.message || 'Failed to remove volunteer');
+          }
           setPendingDelete(null);
         }} />
       

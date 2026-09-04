@@ -55,16 +55,20 @@ export function Inventory() {
     setLowOnly(false);
   };
 
-  const save = (item: InventoryItem) => {
-    if (editing) {
-      inventory.update(item.id, item);
-      toast.success(`${item.itemName} stock updated`);
-    } else {
-      inventory.create(item);
-      toast.success(`${item.itemName} logged in ${item.district}`);
+  const save = async (item: InventoryItem) => {
+    try {
+      if (editing) {
+        await inventory.update(item.id, item);
+        toast.success(`${item.itemName} stock updated`);
+      } else {
+        await inventory.create(item);
+        toast.success(`${item.itemName} logged in ${item.district}`);
+      }
+      setFormOpen(false);
+      setEditing(null);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save inventory item');
     }
-    setFormOpen(false);
-    setEditing(null);
   };
 
   return (
@@ -259,10 +263,14 @@ export function Inventory() {
         title="Delete this stock line?"
         message={`${pendingDelete?.itemName ?? ''} at ${pendingDelete?.storageLocation ?? ''} will no longer count towards district stock.`}
         onCancel={() => setPendingDelete(null)}
-        onConfirm={() => {
+        onConfirm={async () => {
           if (!pendingDelete) return;
-          inventory.remove(pendingDelete.id);
-          toast.success(`${pendingDelete.itemName} removed from inventory`);
+          try {
+            await inventory.remove(pendingDelete.id);
+            toast.success(`${pendingDelete.itemName} removed from inventory`);
+          } catch (err: any) {
+            toast.error(err.message || 'Failed to remove item');
+          }
           setPendingDelete(null);
         }} />
       
