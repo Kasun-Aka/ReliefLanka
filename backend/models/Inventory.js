@@ -8,9 +8,10 @@ const inventorySchema = new mongoose.Schema({
     enum: ["Water", "Food", "Medicine", "Clothing", "Other"],
     required: true,
   },
-  quantity: { type: Number, required: true, default: 0 },
+  quantity: { type: Number, required: true, min: 0, default: 0 },
+  reorderLevel: { type: Number, required: true, min: 0 },
   unit: { type: String, required: true },
-  storageLocation: String,
+  storageLocation: { type: String, required: true },
   district: { type: String, enum: DISTRICTS, required: true },
   loggedAt: { type: Date, default: Date.now },
 });

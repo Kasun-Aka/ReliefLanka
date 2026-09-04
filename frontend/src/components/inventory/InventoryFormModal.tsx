@@ -133,8 +133,9 @@ export function InventoryFormModal({
           <TextInput
             id="inv-qty"
             inputMode="numeric"
+            min="0"
             value={form.quantity}
-            onChange={(e) => set('quantity', e.target.value)}
+            onChange={(e) => set('quantity', e.target.value.replace(/\D/g, ''))}
             placeholder="e.g. 4200" />
           
         </Field>
@@ -155,8 +156,9 @@ export function InventoryFormModal({
           <TextInput
             id="inv-reorder"
             inputMode="numeric"
+            min="0"
             value={form.reorderLevel}
-            onChange={(e) => set('reorderLevel', e.target.value)}
+            onChange={(e) => set('reorderLevel', e.target.value.replace(/\D/g, ''))}
             placeholder="e.g. 2000" />
           
         </Field>

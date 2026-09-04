@@ -64,8 +64,8 @@ export function RequestFormModal({
     const next: Record<string, string> = {};
     if (!form.name.trim()) next.name = 'Requester name is required.';
     if (!form.district) next.district = 'Select the affected district.';
-    if (!/^[0-9+\s()-]{9,}$/.test(form.contactPhone.trim()))
-    next.contactPhone = 'Enter a reachable phone number.';
+    if (!/^\d{10}$/.test(form.contactPhone))
+    next.contactPhone = 'Enter exactly 10 digits.';
     if (!form.itemsNeeded.trim()) next.itemsNeeded = 'List at least one item.';
     const people = Number(form.peopleAffected);
     if (!form.peopleAffected || Number.isNaN(people) || people < 1)
@@ -122,8 +122,11 @@ export function RequestFormModal({
           <TextInput
             id="req-phone"
             value={form.contactPhone}
-            onChange={(e) => set('contactPhone', e.target.value)}
-            placeholder="077 000 0000" />
+            inputMode="numeric"
+            maxLength={10}
+            pattern="[0-9]{10}"
+            onChange={(e) => set('contactPhone', e.target.value.replace(/\D/g, '').slice(0, 10))}
+            placeholder="0770000000" />
           
         </Field>
         <Field label="District" htmlFor="req-district" error={errors.district}>

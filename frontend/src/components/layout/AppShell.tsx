@@ -34,10 +34,14 @@ export function AppShell({ children }: {children: React.ReactNode;}) {
   const { requests } = useReliefData();
   const { user, logout } = useAuth();
   const navigation = NAV.map((item) =>
+    user?.role === 'coordinator' && item.to === '/requests' ?
+    { ...item, to: '/admin/requests' } :
     user?.role === 'coordinator' && item.to === '/centers' ?
     { ...item, to: '/admin/centers' } :
     user?.role === 'coordinator' && item.to === '/volunteers' ?
     { ...item, to: '/admin/volunteers' } :
+    user?.role === 'coordinator' && item.to === '/inventory' ?
+    { ...item, to: '/admin/inventory' } :
     item
   );
   const highPending = requests.items.filter(

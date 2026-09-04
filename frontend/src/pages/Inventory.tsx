@@ -21,9 +21,12 @@ import { DISTRICTS } from '../data/districts';
 import { INVENTORY_CATEGORIES, InventoryItem } from '../types/relief';
 import { formatNumber, formatRelative, matches } from '../utils/format';
 import { categoryTone } from '../utils/tone';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Inventory() {
   const { inventory } = useReliefData();
+  const { user } = useAuth();
+  const canManage = user?.role === 'coordinator';
   const [query, setQuery] = useState('');
   const [district, setDistrict] = useState('');
   const [category, setCategory] = useState('');
@@ -55,16 +58,12 @@ export function Inventory() {
     setLowOnly(false);
   };
 
-  const save = (item: InventoryItem) => {
-    if (editing) {
-      inventory.update(item.id, item);
-      toast.success(`${item.itemName} stock updated`);
-    } else {
-      inventory.create(item);
-      toast.success(`${item.itemName} logged in ${item.district}`);
-    }
-    setFormOpen(false);
-    setEditing(null);
+  const save = async (item: InventoryItem) => {
+    try {
+      if (editing) { await inventory.update(item.id, item); toast.success(`${item.itemName} stock updated`); }
+      else { await inventory.create(item); toast.success(`${item.itemName} logged in ${item.district}`); }
+      setFormOpen(false); setEditing(null);
+    } catch { toast.error('Could not save inventory. Check the backend connection.'); }
   };
 
   return (
@@ -82,7 +81,7 @@ export function Inventory() {
             <MetaStat label="below reorder level" value={String(lowStock.length)} />
           </>
         }
-        action={
+        action={canManage &&
         <Button
           variant="primary"
           onClick={() => {
@@ -216,7 +215,7 @@ export function Inventory() {
                 </Td>
                 <Td align="right">
                   <div className="flex items-center justify-end gap-1.5">
-                    <Button
+                    {canManage && <Button
                     size="sm"
                     variant="ghost"
                     aria-label={`Edit ${item.itemName}`}
@@ -226,8 +225,8 @@ export function Inventory() {
                     }}>
                     
                       <PencilIcon className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
+                    </Button>}
+                    {canManage && <Button
                     size="sm"
                     variant="ghost"
                     aria-label={`Delete ${item.itemName}`}
@@ -235,7 +234,7 @@ export function Inventory() {
                     className="hover:text-signal-600">
                     
                       <Trash2Icon className="h-3.5 w-3.5" />
-                    </Button>
+                    </Button>}
                   </div>
                 </Td>
               </tr>);
@@ -259,11 +258,10 @@ export function Inventory() {
         title="Delete this stock line?"
         message={`${pendingDelete?.itemName ?? ''} at ${pendingDelete?.storageLocation ?? ''} will no longer count towards district stock.`}
         onCancel={() => setPendingDelete(null)}
-        onConfirm={() => {
+        onConfirm={async () => {
           if (!pendingDelete) return;
-          inventory.remove(pendingDelete.id);
-          toast.success(`${pendingDelete.itemName} removed from inventory`);
-          setPendingDelete(null);
+          try { await inventory.remove(pendingDelete.id); toast.success(`${pendingDelete.itemName} removed from inventory`); setPendingDelete(null); }
+          catch { toast.error('Could not remove this inventory item.'); }
         }} />
       
     </div>);

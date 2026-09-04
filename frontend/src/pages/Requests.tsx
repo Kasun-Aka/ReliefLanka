@@ -16,9 +16,12 @@ import { DISTRICTS } from '../data/districts';
 import { ReliefRequest, REQUEST_STATUSES, URGENCIES } from '../types/relief';
 import { formatNumber, formatRelative, matches } from '../utils/format';
 import { requestStatusTone, urgencyTone } from '../utils/tone';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Requests() {
   const { requests } = useReliefData();
+  const { user } = useAuth();
+  const canManage = user?.role === 'coordinator';
   const [query, setQuery] = useState('');
   const [district, setDistrict] = useState('');
   const [urgency, setUrgency] = useState('');
@@ -50,32 +53,22 @@ export function Requests() {
     setStatus('');
   };
 
-  const save = (request: ReliefRequest) => {
-    if (editing) {
-      requests.update(request.id, request);
-      toast.success(`Request ${request.id} updated`);
-    } else {
-      requests.create(request);
-      toast.success(`Request ${request.id} logged for ${request.district}`);
-    }
-    setFormOpen(false);
-    setEditing(null);
-    setSelected(null);
+  const save = async (request: ReliefRequest) => {
+    try {
+      if (editing) { await requests.update(request.id, request); toast.success(`Request ${request.id} updated`); }
+      else { await requests.create(request); toast.success(`Request logged for ${request.district}`); }
+      setFormOpen(false); setEditing(null); setSelected(null);
+    } catch { toast.error('Could not save this request. Check the backend connection.'); }
   };
 
   const toggleStatus = (request: ReliefRequest) => {
     const next = request.status === 'Pending' ? 'Fulfilled' : 'Pending';
-    requests.update(request.id, { status: next });
-    setSelected({ ...request, status: next });
-    toast.success(`${request.id} marked ${next.toLowerCase()}`);
+    requests.update(request.id, { status: next }).then(() => { setSelected({ ...request, status: next }); toast.success(`${request.id} marked ${next.toLowerCase()}`); }).catch(() => toast.error('Could not update request status.'));
   };
 
   const confirmDelete = () => {
     if (!pendingDelete) return;
-    requests.remove(pendingDelete.id);
-    toast.success(`Request ${pendingDelete.id} deleted`);
-    setPendingDelete(null);
-    setSelected(null);
+    requests.remove(pendingDelete.id).then(() => { toast.success(`Request ${pendingDelete.id} deleted`); setPendingDelete(null); setSelected(null); }).catch(() => toast.error('Could not delete this request.'));
   };
 
   return (
@@ -99,6 +92,7 @@ export function Requests() {
           </>
         }
         action={
+        !canManage &&
         <Button
           variant="primary"
           onClick={() => {
@@ -233,7 +227,8 @@ export function Requests() {
           setFormOpen(true);
         }}
         onToggleStatus={toggleStatus}
-        onDelete={setPendingDelete} />
+        onDelete={setPendingDelete}
+        canManage={canManage} />
       
 
       <ConfirmDialog

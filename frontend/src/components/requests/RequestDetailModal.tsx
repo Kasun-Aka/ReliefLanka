@@ -14,6 +14,7 @@ interface RequestDetailModalProps {
   onEdit: (request: ReliefRequest) => void;
   onToggleStatus: (request: ReliefRequest) => void;
   onDelete: (request: ReliefRequest) => void;
+  canManage?: boolean;
 }
 
 function Detail({ label, value }: {label: string;value: React.ReactNode;}) {
@@ -32,7 +33,8 @@ export function RequestDetailModal({
   onClose,
   onEdit,
   onToggleStatus,
-  onDelete
+  onDelete,
+  canManage = false
 }: RequestDetailModalProps) {
   const { centers, volunteers, inventory } = useReliefData();
   if (!request) return null;
@@ -54,19 +56,19 @@ export function RequestDetailModal({
       onClose={onClose}
       footer={
       <>
-          <Button
+          {canManage && <Button
           variant="danger"
           onClick={() => onDelete(request)}
           className="mr-auto">
           
             <Trash2Icon className="h-3.5 w-3.5" />
             Delete
-          </Button>
-          <Button onClick={() => onEdit(request)}>
+          </Button>}
+          {canManage && <Button onClick={() => onEdit(request)}>
             <PencilIcon className="h-3.5 w-3.5" />
             Edit
-          </Button>
-          <Button variant="primary" onClick={() => onToggleStatus(request)}>
+          </Button>}
+          {canManage && <Button variant="primary" onClick={() => onToggleStatus(request)}>
             {request.status === 'Pending' ?
           <>
                 <CheckCircle2Icon className="h-3.5 w-3.5" />
@@ -78,7 +80,7 @@ export function RequestDetailModal({
                 Reopen request
               </>
           }
-          </Button>
+          </Button>}
         </>
       }>
       
